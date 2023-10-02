@@ -169,6 +169,7 @@ int main(int argc, char *argv[]) {
     /* 1.3. Intialize maximum levels to zero */
     float maximum[ num_storms ];
     int positions[ num_storms ];
+	#pragma omp parallel for
     for (i=0; i<num_storms; i++) {
         maximum[i] = 0.0f;
         positions[i] = 0;
@@ -186,6 +187,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr,"Error: Allocating the layer memory\n");
         exit( EXIT_FAILURE );
     }
+	#pragma omp parallel for
     for( k=0; k<layer_size; k++ ) layer[k] = 0.0f;
     for( k=0; k<layer_size; k++ ) layer_copy[k] = 0.0f;
     
@@ -194,7 +196,7 @@ int main(int argc, char *argv[]) {
 
         /* 4.1. Add impacts energies to layer cells */
         /* For each particle */
-		#pragma omp parallel for private(k)
+        #pragma omp parallel for private(j, k) reduction(+:layer[:layer_size])
         for( j=0; j<storms[i].size; j++ ) {
             /* Get impact energy (expressed in thousandths) */
             float energy = (float)storms[i].posval[j*2+1] * 1000;
